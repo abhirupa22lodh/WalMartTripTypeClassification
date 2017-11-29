@@ -1,0 +1,123 @@
+---
+title: "Walmart trip type classification using membership clustering"
+author: "Abhirupa"
+date: "28 November 2017"
+output: word_document
+---
+
+```{r}
+library(fclust)
+library(dplyr)
+library(cluster)
+library(e1071) #for cmeans
+```
+
+```{r}
+train <- read.csv("C:/Users/Administrator/Desktop/Walmart/train.csv/train.csv")
+```
+
+
+```{r}
+train[,-c(1)]->new_data
+```
+
+```{r}
+na.omit(new_data)->new_data
+```
+
+```{r}
+new_data1=new_data[1:323527,]
+new_data2=new_data[323528:647054,]
+```
+
+```{r}
+new_data <- sapply(new_data, as.numeric )
+```
+
+```{r}
+as.data.frame(new_data)->new_data
+```
+
+```{r}
+str(new_data)
+```
+
+```{r}
+test <- read.csv("C:/Users/Administrator/Desktop/Walmart/test.csv/test.csv")
+```
+
+```{r}
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+```
+
+```{r}
+test$Upc[is.na(test$Upc)]=Mode(test$Upc)
+```
+
+```{r}
+test$FinelineNumber[is.na(test$FinelineNumber)]=Mode(test$FinelineNumber)
+```
+
+```{r}
+test <- sapply(test, as.numeric )
+```
+
+```{r}
+as.data.frame(test)->test
+```
+
+```{r}
+
+```
+
+```{r}
+summary(test)
+```
+
+```{r}
+rbind(new_data,test,deparse.level = 0)->combined_df
+
+#as.data.frame(combined_df)->combined_df
+str(combined_df)
+```
+
+```{r}
+cmeans (combined_df, centers=38, verbose=FALSE, dist="euclidean",method="cmeans", m=2, rate.par =NULL)->cf
+```
+
+```{r}
+head(cf$membership)
+```
+
+```{r}
+as.data.frame(cf$membership)->members
+```
+
+```{r}
+members[642926:1296571,]->test_member
+```
+
+```{r}
+data.frame(test$VisitNumber,test_member)->pred
+```
+
+
+```{r}
+library(dplyr)
+pred %>% group_by(test.VisitNumber) %>% summarise_each(funs(mean))->pred
+```
+
+```{r}
+str(pred)
+```
+
+
+```{r}
+write.csv(pred,"C:/Users/Administrator/Desktop/Walmart/clus_pred.csv",row.names = F)
+```
+
+
+

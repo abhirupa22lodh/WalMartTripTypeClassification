@@ -1,0 +1,82 @@
+---
+title: "walmart"
+author: "Abhirupa"
+date: "26 November 2017"
+output: word_document
+---
+
+```{r}
+train <- read.csv("C:/Users/Administrator/Desktop/Walmart/train.csv/train.csv")
+```
+
+```{r}
+na.omit(train)->train
+
+```
+
+```{r}
+summary(train)
+```
+
+```{r}
+library(e1071)
+
+```
+
+```{r}
+naiveBayes(TripType~.,data = train)->nb_model
+```
+
+
+```{r}
+
+test <- read.csv("C:/Users/Administrator/Desktop/Walmart/test.csv/test.csv")
+```
+
+```{r}
+summary(test)
+```
+
+```{r}
+predict(nb_model,test,type = "raw")->pred
+```
+
+```{r}
+test$VisitNumber->VisitNumber
+data.frame(VisitNumber,pred)->pred_df
+```
+
+```{r}
+head(pred_df)
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+pred_df %>% group_by(VisitNumber) %>% arrange(VisitNumber)->pred_df
+```
+
+```{r}
+write.csv(pred_df,"C:/Users/Administrator/Desktop/Walmart/unrefined_pred.csv",row.names = F)
+```
+
+```{r}
+read.csv("C:/Users/Administrator/Desktop/Walmart/unrefined_pred.csv")->unrefined_pred
+```
+
+###Aggregating the predictions based on unique VisitNumbers
+
+```{r}
+library(dplyr)
+unrefined_pred %>% group_by(VisitNumber) %>% summarise_each(funs(mean))->pred
+```
+
+###Writing the file
+
+```{r}
+write.csv(pred,"C:/Users/Administrator/Desktop/Walmart/pred.csv",row.names = F)
+```
+
+
